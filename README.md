@@ -1,9 +1,5 @@
 # 📊 Análise de Séries Temporais - Banco Central do Brasil
 
-**Avaliação N2 - Data Mining**  
-**Data:** Janeiro 2025  
-**Fonte:** Banco Central do Brasil (BCB)
-
 ---
 
 ## 👥 ACADÊMICOS
@@ -289,6 +285,4 @@ Para dúvidas sobre a implementação ou metodologia, consulte:
 ---
 
 **Desenvolvido por**: Arthur Henrique Tscha Vieira e Rafael Rodrigues Ferreira de Andrade  
-**Disciplina**: Data Mining  
-**Avaliação**: N2  
-**Data**: Janeiro 2025
+**Disciplina**: Data Mining
