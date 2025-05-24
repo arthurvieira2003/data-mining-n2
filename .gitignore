@@ -1,3 +1,8 @@
+# =============================================================================
+# PROJETO: Análise de Séries Temporais - BCB
+# ACADÊMICOS: Arthur Henrique Tscha Vieira e Rafael Rodrigues Ferreira de Andrade
+# =============================================================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -77,6 +82,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb_checkpoints/
 
 # IPython
 profile_default/
@@ -172,3 +178,128 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# =============================================================================
+# DATA SCIENCE & ANÁLISE DE DADOS
+# =============================================================================
+
+# Dados temporários e cache
+temp_*.csv
+temp_*.json
+temp_*.xlsx
+temp_*.xls
+cache/
+.cache/
+
+# Arquivos de dados grandes (manter apenas os essenciais)
+data/raw/
+data/temp/
+*.parquet
+*.h5
+*.hdf5
+
+# Modelos treinados
+models/
+*.pkl
+*.pickle
+*.joblib
+*.model
+
+# Logs de execução
+logs/
+*.log
+execution_*.txt
+
+# Arquivos de configuração local
+config_local.py
+config_local.json
+.env.local
+
+# Outputs temporários
+output/temp/
+results/temp/
+
+# =============================================================================
+# VISUALIZAÇÕES E RELATÓRIOS
+# =============================================================================
+
+# Manter apenas gráficos finais, ignorar temporários
+*_temp.png
+*_test.png
+*_draft.png
+temp_*.png
+test_*.png
+
+# Relatórios temporários
+*_temp.html
+*_draft.html
+*_test.html
+
+# =============================================================================
+# FERRAMENTAS DE DESENVOLVIMENTO
+# =============================================================================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# =============================================================================
+# SISTEMA OPERACIONAL
+# =============================================================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Linux
+*~
+.nfs*
+
+# =============================================================================
+# ARQUIVOS ESPECÍFICOS DO PROJETO BCB
+# =============================================================================
+
+# Arquivos de backup
+*_backup.py
+*_old.py
+*_bak.py
+
+# Versões antigas de scripts
+analise_*_old.py
+analise_*_backup.py
+*_corrigido_old.py
+
+# Dados baixados temporariamente (manter apenas os processados)
+bcb_temp_*.csv
+sgs_temp_*.csv
+
+# Notebooks de teste
+test_*.ipynb
+draft_*.ipynb
+experimental_*.ipynb
+
+# =============================================================================
+# MANTER NO REPOSITÓRIO (COMENTÁRIOS PARA CLAREZA)
+# =============================================================================
+
+# MANTER: README.md - Documentação principal
+# MANTER: requirements.txt - Dependências
+# MANTER: analise_series_temporais_bcb.py - Script principal
+# MANTER: *.png (gráficos finais) - Resultados das análises
+# MANTER: .gitignore - Este arquivo
