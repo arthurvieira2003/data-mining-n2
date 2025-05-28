@@ -1,20 +1,3 @@
-"""
-Análise de Séries Temporais - Dados do Banco Central do Brasil (VERSÃO CORRIGIDA)
-Avaliação N2 - Data Mining
-
-Este script realiza análise de tendências em séries temporais usando dados do BCB:
-1. Endividamento das famílias brasileiras
-2. Análise de tendências em conjuntos de dados adicionais do BCB
-
-Ferramentas utilizadas:
-- Python 3.x
-- Pandas para manipulação de dados
-- Matplotlib e Seaborn para visualização
-- Scipy para análise estatística
-
-Fonte dos dados: https://dadosabertos.bcb.gov.br/dataset/
-"""
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,10 +7,11 @@ from scipy.stats import linregress
 import warnings
 from io import StringIO
 import re
+from datetime import datetime, timedelta
 
 warnings.filterwarnings('ignore')
 
-# Configuração para gráficos em português
+# Configuração para os gráficos
 plt.rcParams['font.size'] = 12
 plt.rcParams['figure.figsize'] = (14, 8)
 plt.style.use('default')
@@ -44,10 +28,13 @@ class AnalisadorSeriesTemporaisBCB:
         try:
             print(f"\n📊 Baixando dados: {nome_serie} (Código: {codigo_serie})")
             
-            # URL da API do BCB
-            url = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo_serie}/dados?formato=csv"
+            # URL da API do BCB - usando formato JSON com filtro de data (últimos 10 anos)
+            data_final = datetime.now().strftime('%d/%m/%Y')
+            data_inicial = (datetime.now() - timedelta(days=3650)).strftime('%d/%m/%Y')  # 10 anos atrás
             
-            response = requests.get(url, timeout=30)
+            url = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo_serie}/dados?formato=json&dataInicial={data_inicial}&dataFinal={data_final}"
+            
+            response = requests.get(url, timeout=60)  # Aumentei timeout para 60 segundos
             
             # Verifica se houve erro HTTP
             if response.status_code != 200:
@@ -55,40 +42,18 @@ class AnalisadorSeriesTemporaisBCB:
                 print(f"   URL: {url}")
                 return None
             
-            # Processa o CSV com separador correto
-            csv_content = response.text
+            # Processa o JSON
+            dados_json = response.json()
             
             # Verifica se o conteúdo não está vazio
-            if not csv_content.strip():
+            if not dados_json:
                 print(f"❌ Resposta vazia para {nome_serie}")
                 return None
             
-            # Corrige o formato do CSV se necessário
-            if ';"' in csv_content:
-                # Remove aspas e ajusta separador
-                csv_content = csv_content.replace(';"', ';').replace('"', '')
-            
-            # Carrega dados
-            df = pd.read_csv(StringIO(csv_content), sep=';', encoding='utf-8')
+            # Converte JSON para DataFrame
+            df = pd.DataFrame(dados_json)
             
             # Verifica se as colunas estão corretas
-            if len(df.columns) == 1 and ';' in df.columns[0]:
-                # Reprocessa com separador correto
-                df = pd.read_csv(StringIO(csv_content), sep=';', encoding='utf-8')
-                if len(df.columns) == 1:
-                    # Tenta separar manualmente
-                    lines = csv_content.strip().split('\n')
-                    data_list = []
-                    for line in lines:
-                        if ';' in line:
-                            parts = line.split(';')
-                            if len(parts) >= 2:
-                                data_list.append([parts[0], parts[1]])
-                    
-                    if data_list:
-                        df = pd.DataFrame(data_list[1:], columns=['data', 'valor'])
-            
-            # Limpa e converte dados
             if 'data' in df.columns and 'valor' in df.columns:
                 # Remove espaços em branco
                 df['data'] = df['data'].astype(str).str.strip()
@@ -125,23 +90,8 @@ class AnalisadorSeriesTemporaisBCB:
             print(f"❌ Erro ao baixar dados de {nome_serie}: {e}")
             return None
     
-    def tentar_multiplos_codigos(self, codigos_alternativos, nome_serie):
-        """Tenta baixar dados usando múltiplos códigos alternativos"""
-        for codigo in codigos_alternativos:
-            print(f"🔄 Tentando código alternativo {codigo} para {nome_serie}")
-            df = self.baixar_dados_bcb(codigo, nome_serie)
-            if df is not None:
-                return df
-        
-        print(f"❌ Nenhum código funcionou para {nome_serie}")
-        return None
-    
     def analisar_tendencia(self, df, nome_serie):
         """Analisa tendência da série temporal"""
-        
-        if df is None or len(df) < 10:
-            print(f"⚠️ Dados insuficientes para análise de {nome_serie}")
-            return None
         
         try:
             # Ordena por data
@@ -154,10 +104,6 @@ class AnalisadorSeriesTemporaisBCB:
             mask = ~(df['data_num'].isna() | df['valor'].isna())
             x = df.loc[mask, 'data_num'].values
             y = df.loc[mask, 'valor'].values
-            
-            if len(x) < 10:
-                print(f"⚠️ Dados insuficientes após limpeza para {nome_serie}")
-                return None
             
             # Regressão linear
             slope, intercept, r_value, p_value, std_err = linregress(x, y)
@@ -317,40 +263,35 @@ def main():
     print("\n📊 QUESTÃO 2: Análise de Outros Conjuntos de Dados do BCB")
     print("-" * 60)
     
-    # Datasets selecionados com códigos alternativos
+    # Datasets selecionados
     datasets_q2 = [
-        # Taxa SELIC - múltiplos códigos para tentar
+        # Taxa SELIC
         {
-            'codigos': [11, 1178, 4189],  # Códigos alternativos conhecidos da SELIC
-            'nome': 'Taxa SELIC'
+            'codigo': 1178,
+            'nome': 'Taxa SELIC Acumulada'
         },
         # IPCA
         {
-            'codigos': [433],
+            'codigo': 433,
             'nome': 'IPCA - Variação Mensal'
         },
         # PIB
         {
-            'codigos': [4380],
+            'codigo': 4380,
             'nome': 'PIB Mensal'
         },
-        # Taxa de Câmbio como alternativa adicional
+        # Taxa de Câmbio
         {
-            'codigos': [1],  # Taxa de câmbio R$/US$
-            'nome': 'Taxa de Câmbio R$/US$'
+            'codigo': 3698,
+            'nome': 'Taxa de Câmbio R$/US$ - Média'
         }
     ]
     
     for dataset in datasets_q2:
-        codigos = dataset['codigos']
+        codigo = dataset['codigo']
         nome = dataset['nome']
         
-        if len(codigos) == 1:
-            # Apenas um código
-            df = analisador.baixar_dados_bcb(codigos[0], nome)
-        else:
-            # Múltiplos códigos - tenta até encontrar um que funcione
-            df = analisador.tentar_multiplos_codigos(codigos, nome)
+        df = analisador.baixar_dados_bcb(codigo, nome)
         
         if df is not None:
             resultado = analisador.analisar_tendencia(df, nome)
